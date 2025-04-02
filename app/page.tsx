@@ -7,6 +7,7 @@ import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
+import ImageUpload from './components/ImageUpload';
 
 Amplify.configure(outputs);
 
@@ -40,8 +41,13 @@ export default function App() {
           <li key={todo.id}>{todo.content}</li>
         ))}
       </ul>
+      
+      <div className="upload-section">
+        <ImageUpload />
+      </div>
+
       <div>
-        🥳 App successfully hosted. Try creating a new todo.
+        🥳 App successfully hosted. Try creating a new todo or uploading an image.
         <br />
         <a href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/">
           Review next steps of this tutorial.
@@ -50,3 +56,5 @@ export default function App() {
     </main>
   );
 }
+
+
