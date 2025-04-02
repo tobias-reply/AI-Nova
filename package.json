@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.5.5",
+    "@aws-sdk/client-rekognition": "^3.777.0",
+    "@aws-sdk/s3-request-presigner": "^3.779.0",
     "aws-amplify": "^6.6.6",
     "next": "15.2.4",
     "react": "19.1.0 ",
