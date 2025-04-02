@@ -53,21 +53,49 @@ export default function ImageUpload() {
     try {
       setUploading(true);
       
+      // Generate a unique filename to prevent conflicts
+      const fileExtension = file.name.split('.').pop();
+      const uniqueFileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+      
       const result = await uploadData({
-        key: file.name,
+        key: uniqueFileName,
         data: file,
         options: {
-          contentType: file.type
+          contentType: file.type,
+          accessLevel: 'public'
         }
       }).result;
 
+      console.log('Upload successful:', result);
       setUploadResult('File uploaded successfully!');
       
       // After successful upload, analyze the image
-      await analyzeImage(file.name);
-    } catch (error) {
+      await analyzeImage(uniqueFileName);
+    } catch (error: any) {
       console.error('Error uploading file:', error);
-      setUploadResult('Error uploading file. Please try again.');
+      setUploading(false);
+      
+      // Handle specific error types
+      if (error.name === 'StorageError') {
+        setUploadResult('Storage error: Please check if the file is valid and try again.');
+      } else if (error.name === 'NetworkError') {
+        setUploadResult('Network error: Please check your internet connection.');
+      } else if (error.message?.includes('size')) {
+        setUploadResult('File size error: The image might be too large. Please try a smaller file.');
+      } else if (error.message?.includes('type')) {
+        setUploadResult('Invalid file type: Please upload only image files.');
+      } else {
+        setUploadResult('Error uploading file. Please try again.');
+      }
+      return; // Don't proceed to analysis if upload failed
+    }
+
+    try {
+      // After successful upload, analyze the image
+      await analyzeImage(uniqueFileName);
+    } catch (error: any) {
+      console.error('Error analyzing image:', error);
+      setImageDescription('Failed to analyze image. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -102,4 +130,8 @@ export default function ImageUpload() {
     </div>
   );
 }
+
+
+
+
 

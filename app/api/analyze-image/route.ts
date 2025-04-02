@@ -1,22 +1,11 @@
 import { NextResponse } from 'next/server';
-import { RekognitionClient, DetectLabelsCommand } from "@aws-sdk/client-rekognition";
+import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
-const rekognition = new RekognitionClient({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-  },
-});
-
-const s3 = new S3Client({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-  },
+const s3 = new S3Client({});
+const bedrock = new BedrockRuntimeClient({
+  region: "us-east-1", // Nova model is available in us-east-1
 });
 
 export async function POST(request: Request) {
@@ -30,41 +19,87 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate bucket name
+    const bucketName = process.env.S3_BUCKET_NAME;
+    if (!bucketName) {
+      throw new Error('S3_BUCKET_NAME environment variable is not set');
+    }
+
     // Get the image from S3
     const getObjectCommand = new GetObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME,
+      Bucket: bucketName,
       Key: imageKey,
     });
 
-    const signedUrl = await getSignedUrl(s3, getObjectCommand, { expiresIn: 3600 });
-    
-    // Download the image
-    const imageResponse = await fetch(signedUrl);
-    const imageBuffer = await imageResponse.arrayBuffer();
+    try {
+      const signedUrl = await getSignedUrl(s3, getObjectCommand, { expiresIn: 3600 });
+      
+      // Download the image
+      const imageResponse = await fetch(signedUrl);
+      if (!imageResponse.ok) {
+        throw new Error(`Failed to download image: ${imageResponse.statusText}`);
+      }
+      
+      const imageBuffer = await imageResponse.arrayBuffer();
+      const base64Image = Buffer.from(imageBuffer).toString('base64');
 
-    // Analyze the image with Rekognition
-    const command = new DetectLabelsCommand({
-      Image: {
-        Bytes: Buffer.from(imageBuffer),
-      },
-      MaxLabels: 10,
-      MinConfidence: 70,
-    });
+      // Prepare the prompt for Nova
+      const prompt = {
+        anthropic_version: "bedrock-2023-05-31",
+        max_tokens: 300,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Please describe what you see in this image in detail."
+              },
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: "image/jpeg",
+                  data: base64Image
+                }
+              }
+            ]
+          }
+        ]
+      };
 
-    const response = await rekognition.send(command);
+      // Call Nova model through Bedrock
+      const command = new InvokeModelCommand({
+        modelId: "anthropic.claude-3-sonnet-20240229-v1:0",
+        contentType: "application/json",
+        accept: "application/json",
+        body: JSON.stringify(prompt)
+      });
 
-    // Format the description
-    const labels = response.Labels || [];
-    const description = labels.length > 0
-      ? `This image contains: ${labels.map(label => label.Name).join(', ')}`
-      : 'No objects were detected in this image.';
+      const response = await bedrock.send(command);
+      const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+      const description = responseBody.content[0].text;
 
-    return NextResponse.json({ description });
-  } catch (error) {
+      return NextResponse.json({ description });
+    } catch (error: any) {
+      if (error.name === 'NoSuchKey') {
+        return NextResponse.json(
+          { error: 'Image not found in S3 bucket' },
+          { status: 404 }
+        );
+      }
+      throw error;
+    }
+  } catch (error: any) {
     console.error('Error analyzing image:', error);
     return NextResponse.json(
-      { error: 'Failed to analyze image' },
+      { 
+        error: 'Failed to analyze image',
+        details: error.message 
+      },
       { status: 500 }
     );
   }
 }
+
+
