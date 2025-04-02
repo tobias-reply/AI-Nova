@@ -1,52 +1,87 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
+import { useState } from "react";
 import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
+import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 
 Amplify.configure(outputs);
 
-const client = generateClient<Schema>();
+// Initialize the Bedrock client
+const bedrockClient = new BedrockRuntimeClient({
+  region: "us-east-1", // Update with your region
+});
 
 export default function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function listTodos() {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }
+  async function sendPrompt() {
+    if (!prompt.trim()) return;
 
-  useEffect(() => {
-    listTodos();
-  }, []);
+    setLoading(true);
+    try {
+      const input = {
+        modelId: "anthropic.claude-3-sonnet-20240229-v1:0", // Nova Lite model ID
+        contentType: "application/json",
+        accept: "application/json",
+        body: JSON.stringify({
+          anthropic_version: "bedrock-2023-05-31",
+          max_tokens: 1000,
+          messages: [
+            {
+              role: "user",
+              content: prompt
+            }
+          ]
+        })
+      };
 
-  function createTodo() {
-    client.models.Todo.create({
-      content: window.prompt("Todo content"),
-    });
+      const command = new InvokeModelCommand(input);
+      const data = await bedrockClient.send(command);
+
+      // Parse the response
+      const responseBody = JSON.parse(new TextDecoder().decode(data.body));
+      setResponse(responseBody.content[0].text);
+    } catch (error) {
+      console.error("Error calling Bedrock:", error);
+      setResponse("Error: Failed to get response from the model.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <main>
-      <h1>My todos</h1>
-      <button onClick={createTodo}>+ new</button>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
-        ))}
-      </ul>
-      <div>
-        🥳 App successfully hosted. Try creating a new todo.
-        <br />
-        <a href="https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/">
-          Review next steps of this tutorial.
-        </a>
+    <main className="container">
+      <h1>Nova Lite AI Chat</h1>
+      <div className="chat-interface">
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Enter your prompt here..."
+          rows={4}
+          className="prompt-input"
+        />
+        <button 
+          onClick={sendPrompt}
+          disabled={loading}
+          className="send-button"
+        >
+          {loading ? "Sending..." : "Send Prompt"}
+        </button>
+        {response && (
+          <div className="response-container">
+            <h2>Response:</h2>
+            <div className="response-text">
+              {response}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
 }
+
