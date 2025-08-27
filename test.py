@@ -1,4 +1,4 @@
-def my_function(x, /):
+def my_function(*, x):
   print(x)
 
-my_function(x = 3)
+my_function(3)
