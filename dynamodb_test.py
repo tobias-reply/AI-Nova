@@ -4,6 +4,7 @@ from typing import Dict, Any
 def write_to_dynamodb(table_name, item):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
+    some_variable = 3
     
     response = table.put_item(Item=item)
     
