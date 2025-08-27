@@ -3,6 +3,10 @@ import subprocess
 import os
 import sys
 import argparse
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def pull_ai_nova():
     """Pull latest changes from main branch of AI-Nova repository"""

@@ -3,7 +3,11 @@ import os
 import json
 import requests
 from typing import Dict, List, Any, Optional
+from dotenv import load_dotenv
 from .text_editor import TextEditor
+
+# Load environment variables from .env file
+load_dotenv()
 
 class ClaudeClient:
     def __init__(self, api_key: Optional[str] = None):
