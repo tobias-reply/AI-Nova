@@ -55,7 +55,8 @@ def pull_ai_nova():
             # Get list of changed files between old and new HEAD
             git_diff = subprocess.run(['git', 'diff', '--name-only', current_head, new_head], 
                                     capture_output=True, text=True, check=True)
-            changed_files = [f.strip() for f in git_diff.stdout.splitlines() if f.strip()]
+            # Convert relative paths to absolute paths
+            changed_files = [os.path.abspath(f.strip()) for f in git_diff.stdout.splitlines() if f.strip()]
             
             print(f"Found {len(changed_files)} changed files:")
             for file in changed_files:
@@ -68,7 +69,7 @@ def pull_ai_nova():
             print(f"Creating documentation branch: {doc_branch}")
             subprocess.run(['git', 'checkout', '-b', doc_branch], check=True)
             
-            # Save changed files list
+            # Save changed files list (absolute paths)
             with open('.claude_changed_files.txt', 'w') as f:
                 f.write('\n'.join(changed_files))
             
@@ -277,6 +278,9 @@ def run_legacy_claude_workflow(prompt_file="prompt.txt", changed_files=None, doc
                     changed_files = [line.strip() for line in f if line.strip()]
             else:
                 changed_files = []
+        
+        # Ensure all paths are absolute
+        changed_files = [os.path.abspath(f) if not os.path.isabs(f) else f for f in changed_files]
         
         # Load prompt from file
         if os.path.exists(prompt_file):
