@@ -28,3 +28,6 @@ def delete_item_from_dynamodb(table_name, item):
 def process_data(table_name, data_object):
     result = write_to_dynamodb(table_name, data_object)
     return result
+
+def printfive():
+    return 5
