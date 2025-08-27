@@ -15,6 +15,7 @@ def write_to_dynamodb(table_name: str, item: Dict[str, Any]) -> Dict[str, Any]:
 def delete_item_from_dynamodb(table_name, item):
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
+    print("here could be your logging")
     
     key = {}
     for key_name in ['id', 'pk', 'primary_key']:
