@@ -152,6 +152,11 @@ Co-authored-by: Claude <noreply@anthropic.com>"""
         # Create pull request using GitHub CLI
         create_documentation_pr(doc_branch_info, changed_files)
         
+        # Switch back to main branch
+        print("🔄 Switching back to main branch...")
+        subprocess.run(['git', 'checkout', 'main'], check=True)
+        print("✅ Back on main branch")
+        
     except subprocess.CalledProcessError as e:
         print(f"Error committing documentation changes: {e}")
     except Exception as e:
