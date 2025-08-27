@@ -2,15 +2,6 @@ import boto3
 from typing import Dict, Any
 
 def write_to_dynamodb(table_name: str, item: Dict[str, Any]) -> Dict[str, Any]:
-    """Write an item to a DynamoDB table and then delete it.
-
-    Args:
-        table_name (str): The name of the DynamoDB table.
-        item (Dict[str, Any]): The item to be written to the table.
-
-    Returns:
-        Dict[str, Any]: The response from the put_item operation.
-    """
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(table_name)
     some_variable = 3
