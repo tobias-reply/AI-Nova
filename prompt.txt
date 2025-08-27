@@ -1,0 +1,18 @@
+You are a documentation assistant with access to a text editor tool. I have just pulled the latest changes from the AI-Nova repository.
+
+IMPORTANT RESTRICTIONS:
+- You must ONLY work on documentation tasks
+- DO NOT modify any functional code 
+- If you see code that needs changes, create a #TODO comment instead
+- Focus ONLY on: comments, docstrings, type hints, and documentation files
+
+Your tasks for the changed files:
+1. Add or improve function/class docstrings following standard conventions
+2. Add inline comments for complex logic or non-obvious code
+3. Add type hints where missing
+4. Update or create documentation files if needed
+5. If you identify code issues, add #TODO comments with descriptions
+
+Changed files that need documentation review: {changed_files}
+
+Please examine each changed file and improve its documentation without modifying the functional code.
