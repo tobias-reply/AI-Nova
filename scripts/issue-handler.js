@@ -10,6 +10,17 @@ async function main() {
     const issueBody = process.env.ISSUE_BODY;
     const githubToken = process.env.GITHUB_TOKEN;
     
+    console.log('Environment check:');
+    console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Present' : 'Missing');
+    console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Present' : 'Missing');
+    console.log('- AWS_SESSION_TOKEN:', process.env.AWS_SESSION_TOKEN ? 'Present' : 'Missing');
+    console.log('- AWS_REGION:', process.env.AWS_REGION || 'us-east-1');
+    
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+      console.error('AWS credentials not found in environment variables');
+      process.exit(1);
+    }
+    
     if (!issueBody) {
       console.log('No issue body found, skipping...');
       return;
@@ -27,10 +38,22 @@ async function main() {
     const systemPrompt = fs.readFileSync(path.join(__dirname, 'system-prompt.txt'), 'utf-8');
     const projectContext = fs.readFileSync(path.join(__dirname, 'project-context.txt'), 'utf-8');
 
-    // Initialize Bedrock client
+    // Initialize Bedrock client with session token support
+    const credentials = {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    };
+    
+    if (process.env.AWS_SESSION_TOKEN) {
+      credentials.sessionToken = process.env.AWS_SESSION_TOKEN;
+    }
+
     const bedrockClient = new BedrockRuntimeClient({
-      region: process.env.AWS_REGION || 'us-east-1'
+      region: process.env.AWS_REGION || 'us-east-1',
+      credentials
     });
+    
+    console.log('Testing Bedrock access...');
 
     // Prepare the prompt
     const fullPrompt = `${systemPrompt}
@@ -49,18 +72,17 @@ Please provide only the revised issue description:`;
       body: JSON.stringify({
         anthropic_version: 'bedrock-2023-05-31',
         max_tokens: 4000,
-        messages: [
-          {
-            role: 'user',
-            content: fullPrompt
-          }
-        ]
+        messages: [{
+          role: 'user',
+          content: fullPrompt
+        }]
       }),
       contentType: 'application/json',
       accept: 'application/json'
     });
 
     const response = await bedrockClient.send(command);
+    console.log('Bedrock call successful');
     const responseBody = JSON.parse(new TextDecoder().decode(response.body));
     const revisedDescription = responseBody.content[0].text.trim();
 
