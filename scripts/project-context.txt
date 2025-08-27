@@ -1,0 +1,39 @@
+Project: Innovator
+Type: Nx Workspace Monorepo
+Technology Stack: Node.js 22, TypeScript, pnpm
+
+Description:
+This is an enterprise-grade monorepo built with Nx that contains multiple projects and packages. The workspace includes:
+
+1. innovator-mvp-frontend: A Nuxt.js-based frontend application with:
+   - Multi-language support (i18n)
+   - Tailwind CSS for styling
+   - SSO authentication support (OIDC, SAML)
+   - SPA loading templates
+
+2. innovator-mvp: A backend/infrastructure project with:
+   - AWS CDK for infrastructure as code
+   - TypeScript-based serverless functions
+   - SonarCloud integration for code quality
+   - Multiple environment configurations
+
+Architecture:
+- Monorepo structure with shared tooling and dependencies
+- CI/CD pipelines for automated testing and deployment
+- Code quality gates with ESLint, Prettier, and SonarCloud
+- Conventional commits and automated releases
+- Docker and CDK deployment strategies
+
+Development Standards:
+- TypeScript for type safety
+- ESLint and Prettier for code formatting
+- Conventional commits for consistent git history
+- Automated testing with Vitest
+- Husky hooks for pre-commit validation
+
+When writing issues for this project, consider:
+- Nx workspace structure and project interdependencies
+- Frontend/backend separation and API contracts
+- Infrastructure requirements and AWS services
+- Multi-environment deployment considerations
+- Code quality and testing requirements

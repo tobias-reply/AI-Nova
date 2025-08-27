@@ -1,17 +1,32 @@
 # Claude Documentation Workflow Integration
 
-This repository includes an integrated Claude documentation workflow that automatically improves documentation for changed files using Anthropic's Claude API with text editor tools.
+This repository includes an integrated Claude documentation workflow that automatically improves documentation for changed files using Anthropic's Claude Code SDK and legacy text editor tools.
 
 ## Setup
 
-1. **Install dependencies with uv:**
+1. **Install Python dependencies with uv:**
    ```bash
    uv sync
    ```
 
-2. **Set your Anthropic API key:**
+2. **Install Claude Code CLI (required for SDK):**
    ```bash
-   export ANTHROPIC_API_KEY="your_api_key_here"
+   npm install -g @anthropic-ai/claude-code
+   ```
+
+3. **Choose your authentication method:**
+
+   **Option A: Amazon Bedrock (Recommended)**
+   ```bash
+   # Configure for Bedrock (uses your AWS account)
+   echo "CLAUDE_CODE_USE_BEDROCK=1" >> .env
+   aws configure  # Set up AWS credentials
+   ```
+   📖 **See [BEDROCK_SETUP.md](BEDROCK_SETUP.md) for detailed Bedrock setup guide**
+
+   **Option B: Direct Anthropic API**
+   ```bash
+   echo "ANTHROPIC_API_KEY=your_api_key_here" >> .env
    ```
 
 ## Usage
@@ -21,19 +36,33 @@ This repository includes an integrated Claude documentation workflow that automa
 uv run python pull_ai_nova.py
 ```
 
-### Pull + Run Claude Documentation Workflow
+### Pull + Run Claude Code SDK Agent
 ```bash
 uv run python pull_ai_nova.py --claude
 ```
 
-### Run Claude Documentation Only (No Git Pull)
+### Interactive Documentation Session
+```bash
+uv run python pull_ai_nova.py --interactive
+```
+
+### Run Documentation Agent Only (No Git Pull)
 ```bash
 uv run python pull_ai_nova.py --claude-only
 ```
 
-### Use Custom Prompt File
+### Use Legacy Workflow (Custom Text Editor Tools)
 ```bash
-uv run python pull_ai_nova.py --claude --prompt my_custom_prompt.txt
+uv run python pull_ai_nova.py --claude --legacy
+```
+
+### Direct Claude Code SDK Usage
+```bash
+# Process specific files
+uv run python -m claude_code_tools.cli_integration --files file1.py file2.js
+
+# General documentation review
+uv run python -m claude_code_tools.cli_integration --general-review
 ```
 
 ## How It Works
