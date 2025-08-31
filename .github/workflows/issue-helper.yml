@@ -24,13 +24,6 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Read project information
-        id: project-info
-        run: |
-          echo "content<<PROJECT_INFO_EOF" >> $GITHUB_OUTPUT
-          cat claude_scripts/project_info.txt >> $GITHUB_OUTPUT
-          echo "PROJECT_INFO_EOF" >> $GITHUB_OUTPUT
-
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -70,7 +63,7 @@ jobs:
 
             Project context information:
             
-            ${{ steps.project-info.outputs.content }}
+            $(cat claude_scripts/project_info.txt)
 
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-20250514-v1:0
