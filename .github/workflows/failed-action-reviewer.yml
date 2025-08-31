@@ -60,7 +60,7 @@ jobs:
             - Dependency issues
             - Infrastructure/deployment script problems
             
-            Provide your analysis as inline comments on the relevant code sections when possible. 
+            Provide your analysis as inline comments on the relevant code sections when possible.  
 
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-20250514-v1:0
