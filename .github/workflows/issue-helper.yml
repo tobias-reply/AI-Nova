@@ -1,0 +1,74 @@
+name: Claude Issue Helper
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+on:
+  issues:
+    types: [opened, reopened, edited, labeled]
+
+jobs:
+  claude-issue-analysis:
+    if: contains(github.event.issue.labels.*.name, 'claude-agent') || github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Read project information
+        id: project-info
+        run: echo "content=$(cat claude_scripts/project_info.txt)" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: eu-central-1
+        env:
+          AWS_REGION: eu-central-1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          use_bedrock: "true"
+          prompt: |
+            REPO: ${{ github.repository }}
+            ISSUE NUMBER: ${{ github.event.issue.number }}
+            ISSUE TITLE: ${{ github.event.issue.title }}
+            ISSUE BODY: ${{ github.event.issue.body }}
+            ISSUE AUTHOR: ${{ github.event.issue.user.login }}
+
+            You are a project management expert helping with issue analysis and enhancement.
+            
+            Please:
+            1. Analyze the issue description and categorize it (bug, feature request, question, etc.)
+            2. Suggest relevant labels that should be applied
+            3. Identify if the issue is missing important information
+            4. Provide helpful suggestions or questions to clarify requirements
+            5. If it's a bug report, suggest debugging steps or areas to investigate
+            6. Cross-reference with similar existing issues if applicable
+            
+            Focus on:
+            - Issue clarity and completeness
+            - Proper categorization and labeling
+            - Actionable next steps for the reporter or maintainers
+            - Technical guidance based on the issue content
+            
+            Add your analysis as a comment on the issue with helpful information and suggestions.
+
+            Project context information:
+            
+            ${{ steps.project-info.outputs.content }}
+
+          claude_args: |
+            --model eu.anthropic.claude-sonnet-4-20250514-v1:0
+            --allowedTools "Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(gh issue view:*),Bash(gh label create:*),Bash(gh label add:*)"

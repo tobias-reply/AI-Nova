@@ -1,0 +1,24 @@
+Project Information for AI-Nova
+
+This is an AI-powered project management and development tool. Key aspects:
+
+- Technology Stack: Node.js, GitHub Actions, AWS Bedrock integration
+- Main Features: Automated code review, deployment failure analysis, issue management
+- Architecture: Uses Claude AI for intelligent analysis and suggestions
+- Deployment: Automated via GitHub Actions with AWS integration
+- Repository Structure: 
+  - /scripts/ - automation scripts
+  - /claude_scripts/ - Claude-specific configuration and prompts
+  - /.github/workflows/ - CI/CD automation
+
+Common Issues:
+- AWS credential configuration problems
+- GitHub App authentication failures
+- Workflow trigger and permission issues
+- Claude API integration challenges
+
+When analyzing issues, consider:
+- Whether it's related to AI/automation functionality
+- AWS/deployment configuration problems
+- GitHub integration and permissions
+- Node.js dependency or runtime issues
