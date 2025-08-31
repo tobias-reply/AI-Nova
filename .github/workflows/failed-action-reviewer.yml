@@ -26,6 +26,10 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
+      - name: Read deployment guide
+        id: deployment-guide
+        run: echo "content=$(cat claude_scripts/deployment_guide.txt)" >> $GITHUB_OUTPUT
+
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -64,7 +68,7 @@ jobs:
 
             In the following text the Deployment will be further specified:
             
-            $(cat claude_scripts/deployment_guide.txt)
+            ${{ steps.deployment-guide.outputs.content }}
 
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-20250514-v1:0
