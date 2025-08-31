@@ -27,11 +27,9 @@ jobs:
       - name: Read project information
         id: project-info
         run: |
-          {
-            echo "content<<EOF"
-            cat claude_scripts/project_info.txt
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          cat claude_scripts/project_info.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
