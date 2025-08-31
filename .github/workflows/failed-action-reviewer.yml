@@ -28,7 +28,12 @@ jobs:
 
       - name: Read deployment guide
         id: deployment-guide
-        run: echo "content=$(cat claude_scripts/deployment_guide.txt)" >> $GITHUB_OUTPUT
+        run: |
+          {
+            echo "content<<EOF"
+            cat claude_scripts/deployment_guide.txt
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
