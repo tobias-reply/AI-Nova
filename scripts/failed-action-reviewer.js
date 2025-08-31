@@ -12,17 +12,10 @@ async function main() {
     const githubToken = process.env.GITHUB_TOKEN;
     
     console.log('Environment check:');
-    console.log('- AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID ? 'Present' : 'Missing');
-    console.log('- AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY ? 'Present' : 'Missing');
     console.log('- AWS_REGION:', process.env.AWS_REGION || 'us-east-1');
     console.log('- Workflow Run ID:', workflowRunId);
     console.log('- Workflow Name:', workflowName);
     console.log('- Pull Request Number:', pullRequestNumber);
-    
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-      console.error('AWS credentials not found in environment variables');
-      process.exit(1);
-    }
     
     if (!workflowRunId) {
       console.log('No workflow run ID found, skipping...');
@@ -99,19 +92,9 @@ async function main() {
       }
     }
 
-    // Initialize Bedrock client
-    const credentials = {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    };
-    
-    if (process.env.AWS_SESSION_TOKEN) {
-      credentials.sessionToken = process.env.AWS_SESSION_TOKEN;
-    }
-
+    // Initialize Bedrock client using default credentials (configured by aws-actions/configure-aws-credentials)
     const bedrockClient = new BedrockRuntimeClient({
-      region: process.env.AWS_REGION || 'us-east-1',
-      credentials
+      region: process.env.AWS_REGION || 'us-east-1'
     });
     
     console.log('Analyzing failure with Claude via Bedrock...');
