@@ -26,6 +26,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       
+      - name: Read project info
+        id: project-info
+        run: |
+          echo "content=$(cat claude_scripts/project_info.txt | base64 -w 0)" >> $GITHUB_OUTPUT
+      
       - name: Process issue
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,4 +40,5 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_BODY: ${{ github.event.issue.body }}
+          PROJECT_INFO: ${{ steps.project-info.outputs.content }}
         run: node scripts/issue-handler.js
