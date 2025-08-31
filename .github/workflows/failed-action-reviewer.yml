@@ -51,6 +51,7 @@ jobs:
             2. Examine the code changes in the associated PR that may have caused the failure
             3. Provide specific, actionable suggestions to fix the deployment issues
             4. Suggest preventive measures to avoid similar failures
+            5. Summarize your findings and suggestions as a comment on the PR
             
             Focus on deployment-specific issues like:
             - Build failures
@@ -60,6 +61,10 @@ jobs:
             - Infrastructure/deployment script problems
             
             Provide your analysis as inline comments on the relevant code sections when possible.  
+
+            In the following text the Deployment will be further specified:
+            
+            $(cat claude_scripts/deployment_guide.txt)
 
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-20250514-v1:0
