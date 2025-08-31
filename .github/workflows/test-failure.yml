@@ -2,6 +2,8 @@ name: Test Failure Action
 
 on:
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
   push:
     branches: [ main ]
 
@@ -19,4 +21,4 @@ jobs:
           nonexistent-command-that-will-fail
           
       - name: This won't run due to previous failure
-        run: echo "This step should not execute"
+        run: echo "This step should not execute. Why did we implement this??"

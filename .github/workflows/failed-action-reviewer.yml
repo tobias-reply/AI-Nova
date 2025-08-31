@@ -15,8 +15,6 @@ jobs:
   claude-deployment-review:
     if: github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
-    env:
-      AWS_REGION: us-west-2
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,6 +31,8 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: eu-central-1
+        env:
+          AWS_REGION: eu-central-1
 
       - uses: anthropics/claude-code-action@v1
         with:
@@ -60,7 +60,7 @@ jobs:
             - Dependency issues
             - Infrastructure/deployment script problems
             
-            Provide your analysis as inline comments on the relevant code sections when possible.
+            Provide your analysis as inline comments on the relevant code sections when possible.  
 
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-20250514-v1:0
