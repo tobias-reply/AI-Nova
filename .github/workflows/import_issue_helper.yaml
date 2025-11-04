@@ -10,8 +10,8 @@ jobs:
   issue-helper:
     if: |
       !contains(github.event.issue.labels.*.name, 'no-claude-agent') &&
-      github.actor != 'claude-code-integration-base' &&
-      github.actor != 'claude-code-integration-base[bot]'
+      github.actor != 'reply-action-reviewer' &&
+      github.actor != 'reply-action-reviewer[bot]'
     permissions:
       issues: write
       id-token: write
