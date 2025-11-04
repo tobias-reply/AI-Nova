@@ -1,0 +1,15 @@
+name: Issue Helper
+
+on:
+  issues:
+    types: [opened, reopened]
+  issue_comment:
+    types: [created]
+
+jobs:
+  issue-helper:
+    uses: owner/claude-code-showcase/.github/workflows/reusable/claude-issue-helper.yml@v1.0.2
+    secrets:
+      app_id: ${{ secrets.APP_ID }}
+      app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      aws_role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
