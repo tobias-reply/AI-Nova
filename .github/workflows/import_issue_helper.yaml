@@ -16,7 +16,7 @@ jobs:
       issues: write
       id-token: write
       contents: read
-    uses: tobias-reply/claude-code-showcase/.github/workflows/claude-issue-helper.yml@v1.0.2
+    uses: tobias-reply/claude-code-showcase/.github/workflows/claude-issue-helper.yml@v1.0.3
     secrets:
       app_id: ${{ secrets.APP_ID }}
       app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
